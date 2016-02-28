@@ -52,21 +52,44 @@
       var searchViewEl = document.getElementById('search-view');
 
       function performSearch(text) {
-        if (!text.length) {
-          contentViewEl.stopFindInPage('clearSelection');
+        contentViewEl.findInPage(text);
+      };
+
+      function stopSearch() {
+        contentViewEl.stopFindInPage('clearSelection');
+      }
+
+      function updateMatches(count) {
+        searchViewEl.send('update', count);
+      }
+
+      contentViewEl.addEventListener('found-in-page', function (event) {
+        if (!event.result) {
+          updateMatches(0);
           return;
         }
 
-        contentViewEl.findInPage(text);
-      };
+        if (!event.result.finalUpdate) {
+          return;
+        }
+
+        updateMatches(event.result.matches);
+      });
 
       searchViewEl.addEventListener('dom-ready', function () {
         searchViewEl.focus();
       });
 
       searchViewEl.addEventListener('ipc-message', function (event) {
-        if (event.channel === 'perform-search') {
-          performSearch(event.args[0]);
+        switch (event.channel) {
+          case 'perform-search':
+            performSearch(event.args[0]);
+            break;
+          case 'stop-search':
+            stopSearch();
+            break;
+          default:
+            return;
         }
       });
     </script>

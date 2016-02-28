@@ -2,19 +2,36 @@
 <html>
   <head>
     <title></title>
+    <style media="screen">
+      body {
+        background: #ccc;
+      }
+    </style>
   </head>
   <body>
     <div>
       <input id="search" type="text" placeholder="Search something" autofocus>
+      <span id="label"></span>
     </div>
 
     <script type="text/javascript">
       var ipc = require('electron').ipcRenderer;
       var inputEl = document.getElementById('search');
+      var labelEl = document.getElementById('label');
 
       inputEl.addEventListener('input', function () {
+        if(inputEl.value.length === 0) {
+          ipc.sendToHost('stop-search');
+          labelEl.innerText = '';
+          return;
+        }
+
         ipc.sendToHost('perform-search', inputEl.value);
       });
+
+      ipc.on('update', function (_, count) {
+        labelEl.innerText = count.toString() + ' matches';
+      })
     </script>
   </body>
 </html>
