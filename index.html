@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Search test</title>
+    <style media="screen">
+      .container {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: 0;
+        overflow: hidden;
+      }
+
+      .contents {
+        transition: height 0.1s ease-in-out;
+        width: 100%;
+        flex: 1 0 auto;
+        height: 100%;
+      }
+
+      .search-bar {
+        transition: height 0.1s ease-in-out;
+        flex: 0 0 auto;
+        width: 100%;
+        height: 0;
+      }
+
+      .container--with-search .contents {
+        height: calc(100% - 40px);
+      }
+
+      .container--with-search .search-bar {
+        height: 40px;
+        flex-basis: 40px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="container" class="container container--with-search">
+      <webview id="content-view" class="contents" src="./content.html"></webview>
+      <webview id="search-view" class="search-bar" src="./search.html" nodeintegration></webview>
+    </div>
+
+    <script type="text/javascript">
+      var ipc = require('electron').ipcRenderer;
+      var contentViewEl = document.getElementById('content-view');
+      var searchViewEl = document.getElementById('search-view');
+
+      function performSearch(text) {
+        if (!text.length) {
+          contentViewEl.stopFindInPage('clearSelection');
+          return;
+        }
+
+        contentViewEl.findInPage(text);
+      };
+
+      searchViewEl.addEventListener('dom-ready', function () {
+        searchViewEl.focus();
+      });
+
+      searchViewEl.addEventListener('ipc-message', function (event) {
+        if (event.channel === 'perform-search') {
+          performSearch(event.args[0]);
+        }
+      });
+    </script>
+  </body>
+</html>

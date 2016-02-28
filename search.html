@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body>
+    <div>
+      <input id="search" type="text" placeholder="Search something" autofocus>
+    </div>
+
+    <script type="text/javascript">
+      var ipc = require('electron').ipcRenderer;
+      var inputEl = document.getElementById('search');
+
+      inputEl.addEventListener('input', function () {
+        ipc.sendToHost('perform-search', inputEl.value);
+      });
+    </script>
+  </body>
+</html>
