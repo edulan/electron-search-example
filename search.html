@@ -20,7 +20,7 @@
       var labelEl = document.getElementById('label');
 
       inputEl.addEventListener('input', function () {
-        if(inputEl.value.length === 0) {
+        if (!inputEl.value.length) {
           ipc.sendToHost('stop-search');
           labelEl.innerText = '';
           return;
@@ -30,6 +30,8 @@
       });
 
       ipc.on('update', function (_, count) {
+        if (!inputEl.value.length) return;
+
         labelEl.innerText = count.toString() + ' matches';
       })
     </script>
